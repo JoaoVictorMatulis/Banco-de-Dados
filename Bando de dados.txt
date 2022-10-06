@@ -1,0 +1,342 @@
+show databases;
+create database aula;
+
+use aula;
+create table cliente (
+   cod_cli int primary key auto_increment,
+   nome_cli varchar(40) not null,
+   endereco varchar(40) ,
+   cidade varchar(20),
+   cep char(8),
+   uf char(2)
+);
+
+create table vendedor(
+	cod_vend int primary key auto_increment,
+	nome_vend varchar(40) not null,
+	sal_fixo decimal(9,2) not null,
+	faixa_comiss char(1)
+);
+
+create table produto(
+	cod_prod int primary key auto_increment,
+    unid_prod varchar(3) not null,
+    desc_prod varchar(20) not null,
+    val_unit decimal(9,2) not null
+);
+
+create table pedido(
+	num_ped int primary key auto_increment,
+	prazo_entr int not null,
+    fk_cod_vend int not null,
+    fk_cod_cli int not null,
+    foreign key (fk_cod_vend) references vendedor (cod_vend),
+    foreign key (fk_cod_cli) references cliente (cod_cli)
+);
+
+create table item_pedido(
+	qtd_ped int not null,
+	fk_num_ped int,
+	fk_cod_prod int,
+    foreign key (fk_num_ped) references pedido (num_ped),
+	foreign key (fk_cod_prod) references produto(cod_prod)
+);
+show tables;
+describe cliente;
+
+insert into cliente (nome_cli, endereco, cidade, cep, uf) values ('Jonas','av. Santo Amarmo,300','São Paulo','01302003','SP'),('Italo','av. euzabio,300','São Paulo','41002003','SP');
+select * from cliente;
+
+insert into vendedor (nome_vend, sal_fixo, faixa_comiss) values ('Manoel','2341.99','A'),('Samuel','1450.00','B');
+select * from vendedor;
+
+insert into produto (unid_prod, desc_prod, val_unit) values ('CX','caderno do batman','15.99'),('PC','Grampo','1'),('UN','Lapis','3.24');
+select * from produto;
+
+insert into pedido (prazo_entr,fk_cod_vend,fk_cod_cli) values (10,1,4);
+select * from pedido;
+
+insert into item_pedido(qtd_ped,fk_num_ped,fk_cod_prod) values (5,1,10);
+select * from item_pedido;
+
+alter table cliente add column telefono varchar(12);
+select * from cliente;
+
+alter table cliente modify column telefone varchar(60);
+select * from cliente;
+
+update cliente set endereco = 'Av. euzebio';/*Altera a tabela inteira*/
+
+update cliente set cep = '03004005' where cod_cli = 2;
+select * from cliente;
+
+delete from vendedor where cod_vend = 3;
+select * from vendedor;
+
+update vendedor set sal_fixo = (sal_fixo * 1.15);
+select * from vendedor;
+
+update cliente set cep = '03004005' where cod_cli = 2;
+select * from cliente;
+
+insert into pedido  (prazo_entr, fk_cod_vend, fk_cod_cli) value (31,1,1);
+select * from pedido;
+select * from produto;
+select * from item_pedido;
+
+insert into item_pedido(qtd_ped,fk_num_ped,fk_cod_prod) values (3,3,10);
+select * from item_pedido;
+
+
+
+
+
+/*Clinica*/
+use clinica;
+create table medico(
+	codm int primary key auto_increment,
+    nome varchar(40) not null,
+    idade smallint not null,
+    especialidade char(10),
+    cpf varchar(11) unique,
+    cidade varchar(30),
+    fk_nroa int,
+    foreign key (fk_nroa) references ambulatorio(nroa)
+);
+describe medico;
+
+alter table medico drop column doenca;
+
+drop table medico;
+
+create table funcionario(
+	codf int primary key auto_increment,
+    nome varchar(40) not null,
+    idade smallint not null,
+    cidade char(30),
+    cpf varchar(11) unique,
+    salario decimal (10,2),
+    cargo varchar(20)
+);
+
+create table consulta(
+	num_consulta int primary key auto_increment,
+    data_consulta date,
+    hora time,
+    fk_codp int,
+    fk_codm int,
+	foreign key (fk_codp) references paciente(codp),
+    foreign key (fk_codm) references medico(codm)
+);
+
+ alter table funcionario add column nroa int not null;
+ alter table funcionario drop column nroa;
+ 
+ describe ambulatorio;
+ insert into ambulatorio (andar, capacidade) values(1,30),(1,50),(2,40);
+ select * from ambulatorio;
+ insert into ambulatorio (andar, capacidade) values(2,25),(2,55);
+ 
+ insert into funcionario (nome, idade, cidade, cpf, salario, cargo) values
+	('Jonas',24,'São Paulo',32465789754,2343.32,'ADM'),
+    ('Maria',54,'Salvador',96568484687,6343.32,'Analista'),
+    ('Lucas',34,'Salvador',25548465486,5343.32,'AdmCompras'),
+    ('Samuel',43,'Rio de Janeiro',25154587624,12343.32,'AdmEdifício'),
+    ('Carlos',19,'Fortaleza',82743923764,13343.32,'Gerente');
+select * from funcionario;
+
+select andar from ambulatorio;
+
+insert into medico (nome,idade,especialidade,cpf,cidade,fk_nroa) 
+			values  ('Maria',42,'Ortopedia','23355678910','São Paulo', 3),('Joaquim',35,'Ortopedia','27355676990','Rio de Janeiro', 2);
+select * from medico;
+
+insert into medico (nome,idade,especialidade,cpf,cidade,fk_nroa) 
+			values  ('Carlos',28,'pediatria','83355678910','Joinville', 4),('Marci',33,'Neurologia','17355676990','Biguacu', 3);
+
+
+select * from paciente;
+
+insert into paciente (nome,idade,cidade,CPF,doenca)
+			values  ('Ana',20,'Florianopolis',23353678910,'Gripe'),
+					('Pedro',10,'Florianopolis',27393658910,'Fratura');
+                    
+insert into paciente (nome,idade,cidade,CPF,doenca)
+			values  ('Lucia',30,'Biguacu',23453978910,'Tendinite'),
+					('Carlos',28,'Palhoca',27393658930,'Sarampo');
+                    
+insert into consulta (fk_codm,fk_codp,data_consulta,hora) 
+			values	(1,1,'2006/06/12','14:00'),
+					(1,4,'2006/06/13','10:00'),
+					(2,1,'2006/06/13','9:00'),
+                    (2,2,'2006/06/13','11:00'),
+					(2,3,'2006/06/14','14:00'),
+                    (2,4,'2006/06/14','17:00'),
+                    (3,1,'2006/06/19','18:00'),
+                    (3,3,'2006/06/12','10:00'),
+                    (3,4,'2006/06/19','13:00'),
+                    (4,4,'2006/06/20','13:00'),
+                    (4,4,'2006/06/22','19:30');
+select * from consulta;
+
+/*exercicio 1*/
+update paciente set cidade = 'Ilhota' where codp = 2;
+select * from paciente;
+
+/*exercicio 2*/
+update consulta set hora = '12:00' where num_consulta = 2;
+update consulta set data_consulta = '2006/06/04' where num_consulta = 2;
+
+/*exercicio 3*/
+update paciente set doenca = 'Hepatite' where codp = 1;
+
+/*exercicio 4*/
+update consulta set hora = '14:30' where num_consulta = 9;
+
+/*exercicio 5*/
+select * from funcionario;
+delete from funcionario where codf = 15;
+
+/*exercicio6 */
+insert into consulta (fk_codm,fk_codp,data_consulta,hora) 
+			values	(1,1,'2006/06/12','19:00');
+select * from consulta;
+delete from consulta where hora > '19:00';
+
+/*exercicio 7*/
+insert into paciente (nome,idade,cidade,CPF,doenca)
+			values  ('Ana',9,'Florianopolis',23353678410,'Gripe'),
+					('Ana',20,'Florianopolis',23353672910,'cancer');
+select * from paciente;
+delete from paciente where doenca = 'cancer' or idade < 10;
+
+/*exercicio 8*/
+select * from medico;
+select * from consulta;
+delete from medico where cidade = 'Biguacu' or cidade = ' Palhoca';
+
+
+/*Dia 29/09/22*/
+
+select * from funcionario;
+
+select nome,idade from funcionario;
+
+select nome as 'Nome do Funcionário', idade as 'Idade' from funcionario; 
+
+select nome as 'Nome do Funcionário', idade as 'Idade' from funcionario order by idade;
+
+select nome as 'Nome do Funcionário', idade as 'Idade' from funcionario order by idade desc; 
+
+select nome,salario,(salario * 0.12) as INSS from funcionario;
+
+select nome,salario,(salario * 0.12) as INSS, (salario-(salario * 0.12)) as 'Salario liquido' from funcionario;
+
+/*Numero 4 do order by é o numero da coluna que eu quero ordernar (coluna 4 = Salario liquido[tabela que não existe])*/
+select nome,salario,(salario * 0.12) as INSS, (salario-(salario * 0.12)) as 'Salario liquido' from funcionario order by 4; 
+
+select nome,salario, case 
+					 when salario < 2400 then (salario * 0.07)
+                     when salario >= 2400 then (salario * 0.12)
+                     end as INSS
+					from funcionario order by 3 desc;
+                    
+select * from consulta;
+select * from medico;
+select * from paciente;
+select consulta.*,medico.nome from consulta, medico where consulta.fk_codm = medico.codm;
+
+/*exercico 1*/
+select consulta.*,paciente.nome as 'Nome Paciente' from consulta, paciente where consulta.fk_codp = paciente.codp;
+/*exercico 2*/
+select consulta.*,medico.nome as 'Nome medico',paciente.nome as 'Nome Paciente' from consulta, medico, paciente where consulta.fk_codm = medico.codm and consulta.fk_codp = paciente.codp;
+/*exercico 3*/
+select consulta.*,paciente.nome as 'Nome Paciente' from consulta,paciente where paciente.nome = 'Carlos' ;
+
+/*Contar quantos salario estão atribuidos em funcionario*/
+select count(*) from funcionario;
+select count(salario) from funcionario;
+
+/*Calcular algo*/
+select sum(idade)/count(idade) from funcionario;
+
+/*Maior e menor idade*/
+select max(idade) from funcionario;
+select min(idade) from funcionario;
+
+/*Caso tenha mais de uma especialidade repetida usar o distinct que ele mostrara 1 vez só a especialidade*/
+select distinct especialidade from medico;
+/*Contar quantas especialidade iguais tem em medico*/
+select especialidade,count(*) from medico group by especialidade;
+
+select cidade,sum(salario) from funcionario group by cidade;
+
+/*exercico 1*/
+select nome as 'Nome',salario as 'Salario',format((salario * 1.15),2) as 'Reajuste' from funcionario;
+
+/*exercico 2*/
+select * from consulta;
+select medico.nome,count(consulta.num_consulta) as 'Total de Consulta' from medico,consulta where consulta.fk_codm = medico.codm group by nome;
+
+
+
+/*Dia 06/10/2022*/
+
+use clinica;
+select * from funcionario;
+/*quando usar o where nome = 'Samuel' ele vai procurar no banco de dados o nome que é identico ao q está em ''*/
+select * from funcionario where nome = 'Samuel';
+/*quando usar o where nome like 'Samuel' ele vai pegar todos os nomes parecidos com o q está em ''*/
+select * from funcionario where nome like 'samuel';
+/*quando usar o where nome != 'Samuel' ele vai pegar todos os dados diferentes do q está em ''*/
+select * from funcionario where nome != 'Samuel';
+/*quando usar o where nome not like 'samuel' ele vai pegar todos os dados que não forem parecidos com o que está em ''*/
+select * from funcionario where nome not like 'samuel';
+select * from funcionario where salario is null;
+select * from funcionario where salario is not null;
+/*quando usar o between ele vai pegar todos os numeros de 40 a 50 (com 40 e 50 inclusos)*/
+select * from funcionario where idade between 40 and 50;
+select * from consulta;
+select * from consulta where data_consulta between '2006-06-14' and '2006-08-01';
+select * from funcionario where cidade in('Salvador','Rio de Janeiro');
+select * from medico where cidade in (select distinct cidade from funcionario);
+
+use sakila;
+select * from customer;
+
+/*1)Gere uma listagem dos cliente com o endereço completo, ordenado pelo nome do cliente*/
+select * from address;
+select * from customer;
+select distinct customer.first_name as 'Primeiro Nome',address.address as 'Endereço' from customer, address where customer.address_id = address.address_id order by customer.first_name;
+
+/*2)Quais os filmes que o cliente MARY(id : 1) realizou emprestimo*/
+select * from customer where customer_id = 1;
+select * from film;
+select * from rental where customer_id = 1;
+
+select  customer.first_name as 'Primeiro Nome', film.title as 'Titulo do Filme'
+        from rental,customer,inventory,film
+        where customer.customer_id = 1 and customer.customer_id = rental.customer_id and rental.inventory_id = inventory.inventory_id and inventory.film_id = film.film_id;
+
+/*3)Quanto a Mary gastou com locação de filmes.*/
+select * from payment where customer_id = 1;
+
+select  first_name as 'Primeiro Nome',sum(amount)*0.05 as 'Total pago' from customer,payment where customer.customer_id = payment.customer_id and payment.customer_id = 1;
+
+/*4)Quanto faturou o gerente responsavel pela Mary com uma comissão de 5%*/
+select store_id from customer where customer.customer_id = 1;
+select * from store where store_id = 1;
+select * from staff where staff_id = 1;
+
+select staff.first_name as 'Primeiro nome do Gerente', sum(amount) * 0.05 as 'Comissão'  from customer,store,staff,payment where customer.store_id = store.store_id and staff.staff_id = store.manager_staff_id and customer.customer_id = payment.customer_id and payment.customer_id = 1;
+
+/*5)Quais os generos de filmes locados pela cliente Barbara, informando o genero mais solicitado*/
+select * from customer where first_name like 'Barbara';
+select * from rental where customer_id = 4;
+select * from inventory;
+select * from film;
+select * from film_category;
+select * from category;
+
+select * from customer,rental,inventory,film,film_category,category where customer.customer_id = 4 and customer.customer_id = rental.customer_id and rental.inventory_id = inventory.inventory_id and inventory.film_id = film.film_id;
+/*6)Qual o ator favorito da cliente RITA*/
